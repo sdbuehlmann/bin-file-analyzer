@@ -53,7 +53,11 @@ public class ReadableTableTest {
         val startIndex = readableTable.tryFindStartIndexOfField(FIELD_1);
 
         //then
-        Assertions.assertThat(startIndex).contains(0);
+        Assertions.assertThat(startIndex).contains(ReadableTable.FieldInformation.builder()
+                .startIndex(0)
+                .field(FIELD_1)
+                .nrOfBytes(FIELD_1.getNrOfBytes())
+                .build());
     }
 
     @Test
@@ -66,11 +70,33 @@ public class ReadableTableTest {
         val startIndex = readableTable.tryFindStartIndexOfField(FIELD_3);
 
         //then
-        Assertions.assertThat(startIndex)
-                .contains(
+        Assertions.assertThat(startIndex).contains(ReadableTable.FieldInformation.builder()
+                .startIndex(FIELD_1.getNrOfBytes() +
+                        FIELD_2.getNrOfBytes())
+                .field(FIELD_3)
+                .nrOfBytes(FIELD_3.getNrOfBytes())
+                .build());
+    }
+
+    @Test
+    public void tryFindStartIndexOfField_forField4() {
+        // given
+        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
+
+        // when
+        val startIndex = readableTable.tryFindStartIndexOfField(FIELD_4);
+
+        //then
+        Assertions.assertThat(startIndex).contains(ReadableTable.FieldInformation.builder()
+                .startIndex(
                         FIELD_1.getNrOfBytes() +
-                                FIELD_2.getNrOfBytes()
-                );
+                                FIELD_2.getNrOfBytes() +
+                                FIELD_3.getNrOfBytes()
+                )
+                .field(FIELD_4)
+                .nrOfBytes(FIELD_3_VALUE)
+                .build());
     }
 
     @Test
@@ -83,21 +109,43 @@ public class ReadableTableTest {
         val startIndex = readableTable.tryFindStartIndexOfField(FIELD_5);
 
         //then
-        Assertions.assertThat(startIndex)
-                .contains(
+        Assertions.assertThat(startIndex).contains(ReadableTable.FieldInformation.builder()
+                .startIndex(
                         FIELD_1.getNrOfBytes() +
                                 FIELD_2.getNrOfBytes() +
                                 FIELD_3.getNrOfBytes() +
                                 FIELD_3_VALUE
-                );
+                )
+                .field(FIELD_5)
+                .nrOfBytes(FIELD_5.getNrOfBytes())
+                .build());
     }
 
-    public void blub() {
-        Mockito.when(tableDataMock.readData(Mockito.eq(0), Mockito.eq(FIELD_1.getNrOfBytes()))).thenReturn(FIELD_1_VALUE);
-        Mockito.when(tableDataMock.readData(Mockito.eq(4), Mockito.eq(FIELD_2.getNrOfBytes()))).thenReturn(FIELD_2_VALUE);
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE);
-        Mockito.when(tableDataMock.readData(Mockito.eq(9), Mockito.eq(FIELD_3_VALUE))).thenReturn(FIELD_4_VALUE);
-        Mockito.when(tableDataMock.readData(Mockito.eq(13), Mockito.eq(FIELD_5.getNrOfBytes()))).thenReturn(FIELD_5_VALUE);
+    @Test
+    public void tryGetValueOfField_forField1() {
+        // given
+        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readData(Mockito.eq(0), Mockito.eq(FIELD_1.getNrOfBytes()))).thenReturn(FIELD_1_VALUE); // just value of field 3 is needed to determine all indexes
+        readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
+
+        // when
+        val value = readableTable.tryGetValueOfField(FIELD_1);
+
+        //then
+        Assertions.assertThat(value).contains(FIELD_1_VALUE);
     }
 
+    @Test
+    public void tryGetValueOfField_forField4() {
+        // given
+        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readData(Mockito.eq(9), Mockito.eq(FIELD_3_VALUE))).thenReturn(FIELD_4_VALUE); // just value of field 3 is needed to determine all indexes
+        readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
+
+        // when
+        val value = readableTable.tryGetValueOfField(FIELD_4);
+
+        //then
+        Assertions.assertThat(value).contains(FIELD_4_VALUE);
+    }
 }
