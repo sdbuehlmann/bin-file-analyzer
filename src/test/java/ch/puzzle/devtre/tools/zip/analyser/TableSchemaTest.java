@@ -1,8 +1,9 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
-import ch.puzzle.devtre.tools.zip.analyser.TableSchema.StaticValueField;
-import ch.puzzle.devtre.tools.zip.analyser.TableSchema.StaticLengthField;
-import ch.puzzle.devtre.tools.zip.analyser.TableSchema.DynamicLengthField;
+import ch.puzzle.devtre.tools.zip.analyser.model.DynamicLengthField;
+import ch.puzzle.devtre.tools.zip.analyser.model.StaticLengthField;
+import ch.puzzle.devtre.tools.zip.analyser.model.StaticValueField;
+import ch.puzzle.devtre.tools.zip.analyser.model.TableSchema;
 import lombok.val;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

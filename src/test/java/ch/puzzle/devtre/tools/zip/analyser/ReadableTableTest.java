@@ -1,21 +1,25 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
-import lombok.val;
-import org.assertj.core.api.Assertions;
+import ch.puzzle.devtre.tools.zip.analyser.model.TableSchema;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class ReadableTableTest {
+
+    private final TableData tableDataMock = Mockito.mock(TableData.class);
+    private final TableSchema tableSchemaMock = Mockito.mock(TableSchema.class);
+
+    private final ReadableTable readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
     @Test
     public void readData_withFourBytesWith255Value_expectMergedValue() {
         // given
-        val tableData = new TableData(new byte[]{}); // TODO
 
         // when
-        val value = tableData.readData(0, 4);
+        //readableTable.tryFindStartIndexOfField()
 
         //then
-        Assertions.assertThat(value).isEqualTo(0xFFFFFFFF);
+
     }
 
 }

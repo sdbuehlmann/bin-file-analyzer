@@ -1,6 +1,10 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
 import ch.puzzle.devtre.tools.utils.CastHelper;
+import ch.puzzle.devtre.tools.zip.analyser.model.DynamicLengthField;
+import ch.puzzle.devtre.tools.zip.analyser.model.Field;
+import ch.puzzle.devtre.tools.zip.analyser.model.StaticField;
+import ch.puzzle.devtre.tools.zip.analyser.model.TableSchema;
 import lombok.val;
 
 import java.util.HashMap;
@@ -12,7 +16,7 @@ public class ReadableTable {
     private final TableSchema tableSchema;
     private final TableData tableData;
 
-    private final Map<TableSchema.Field, Integer> startIndexesByFields;
+    private final Map<Field, Integer> startIndexesByFields;
 
     public ReadableTable(TableSchema tableSchema, TableData tableData) {
         this.tableSchema = tableSchema;
@@ -21,21 +25,21 @@ public class ReadableTable {
         startIndexesByFields = findStartIndexesOfFields();
     }
 
-    public int tryGetValueOfField(final TableSchema.Field field) {
+    public int tryGetValueOfField(final Field field) {
         return 0;
     }
 
-    public Optional<Integer> tryFindStartIndexOfField(final TableSchema.Field field) {
+    public Optional<Integer> tryFindStartIndexOfField(final Field field) {
         return Optional.ofNullable(startIndexesByFields.get(field));
     }
 
-    private Map<TableSchema.Field, Integer> findStartIndexesOfFields() {
+    private Map<Field, Integer> findStartIndexesOfFields() {
         AtomicInteger index = new AtomicInteger();
-        final Map<TableSchema.Field, Integer> indexes = new HashMap<>();
+        final Map<Field, Integer> indexes = new HashMap<>();
 
-        for (TableSchema.Field field : tableSchema.getFields()) {
+        for (Field field : tableSchema.getFields()) {
             // special case: The length is of a field is stored in additional field
-            CastHelper.tryCast(TableSchema.DynamicLengthField.class, field)
+            CastHelper.tryCast(DynamicLengthField.class, field)
                     .ifPresent(dynamicLengthField -> {
 
                         val referencedField = dynamicLengthField.getFieldContainingLength();
@@ -48,7 +52,7 @@ public class ReadableTable {
                     });
 
             // normal case: The length of the fields is available
-            CastHelper.tryCast(TableSchema.StaticField.class, field)
+            CastHelper.tryCast(StaticField.class, field)
                     .ifPresent(staticField -> {
                         indexes.put(field, index.getAndAdd(staticField.getNrOfBytes()));
                     });

@@ -1,5 +1,6 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
+import ch.puzzle.devtre.tools.zip.analyser.model.TableSchema;
 import lombok.SneakyThrows;
 import lombok.val;
 
