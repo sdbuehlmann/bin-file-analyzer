@@ -1,6 +1,6 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
-import ch.puzzle.devtre.tools.zip.analyser.model.TableSchema;
+import ch.puzzle.devtre.tools.zip.analyser.model.Field;
 import lombok.SneakyThrows;
 import lombok.val;
 
@@ -30,16 +30,31 @@ public class ZipAnalyzer {
             raf.read(buffer, 0, Long.valueOf(sizeOfFile).intValue());
         }
 
-        //findTable(EOCD, buffer);
+        val eocdData = new TableData(findEOCDData(buffer));
+        val readableTable = new ReadableTable(ZipTables.EndOfCentralDirectory.EOCD, eocdData);
 
-        // Read it out.
+        for (Field field : ZipTables.EndOfCentralDirectory.EOCD.getFields()) {
+            val fieldValue = readableTable.tryGetValueOfField(field)
+                    .map(integer -> String.format("0x%X", integer))
+                    .orElse("n/a");
 
+            val fieldInfo = readableTable.tryFindStartIndexOfField(field)
+                    .map(fieldInformation -> String.format(
+                            "StartIndex: %d, NrOfBytes: %d",
+                            fieldInformation.getStartIndex(),
+                            fieldInformation.getNrOfBytes()))
+                    .orElse("n/a");
 
-        System.out.println("Finished");
+            System.out.printf("%s: %s (%s)%n",
+                    field.getDescription(),
+                    fieldValue,
+                    fieldInfo
+            );
+        }
     }
 
-    private byte[] findEOCDData(final TableSchema tableSchema, final byte[] data) {
-        val signature = tableSchema.getSignature();
+    private byte[] findEOCDData(final byte[] data) {
+        val signature = ZipTables.EndOfCentralDirectory.SIGNATURE.getValue();
 
         val tableStartIndex = tryFindSignatureStartIndex(signature, data)
                 .orElseThrow(() -> new IllegalArgumentException("Data does not match to table"));
@@ -60,7 +75,7 @@ public class ZipAnalyzer {
                 if (data[i - 1] == b2) {
                     if (data[i - 2] == b1) {
                         if (data[i - 3] == b0) {
-                            return Optional.of(i + 3);
+                            return Optional.of(i - 3);
                         }
                     }
                 }

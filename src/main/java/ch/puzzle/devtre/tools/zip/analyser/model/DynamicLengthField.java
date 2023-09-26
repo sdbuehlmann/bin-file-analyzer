@@ -8,7 +8,7 @@ import lombok.val;
 public class DynamicLengthField implements Field {
 
     @NonNull StaticLengthField fieldContainingLength;
-    @NonNull String describtion;
+    @NonNull String description;
 
     @Override
     public int getMaxNrOfBytes() {
