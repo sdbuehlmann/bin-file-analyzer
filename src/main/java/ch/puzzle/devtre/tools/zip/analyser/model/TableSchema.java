@@ -20,8 +20,8 @@ public class TableSchema {
     }
 
     public int getSignature() { // TODO: Remove
-        return CastHelper.tryCast(ch.puzzle.devtre.tools.zip.analyser.TableSchema.StaticValueField.class, fields.get(0))
-                .map(ch.puzzle.devtre.tools.zip.analyser.TableSchema.StaticValueField::getValue)
+        return CastHelper.tryCast(StaticValueField.class, fields.get(0))
+                .map(StaticValueField::getValue)
                 .orElseThrow(() -> new IllegalStateException("No static value field as signature at the beginning of the table"));
     }
 }

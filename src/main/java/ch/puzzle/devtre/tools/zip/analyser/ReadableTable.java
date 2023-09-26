@@ -1,6 +1,5 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
-import ch.puzzle.devtre.tools.utils.CastHelper;
 import ch.puzzle.devtre.tools.zip.analyser.model.DynamicLengthField;
 import ch.puzzle.devtre.tools.zip.analyser.model.Field;
 import ch.puzzle.devtre.tools.zip.analyser.model.StaticField;
@@ -38,24 +37,21 @@ public class ReadableTable {
         final Map<Field, Integer> indexes = new HashMap<>();
 
         for (Field field : tableSchema.getFields()) {
-            // special case: The length is of a field is stored in additional field
-            CastHelper.tryCast(DynamicLengthField.class, field)
-                    .ifPresent(dynamicLengthField -> {
+            if (field instanceof DynamicLengthField dynamicLengthField) {
+                // special case: The length is of a field is stored in additional field
+                val referencedField = dynamicLengthField.getFieldContainingLength();
+                val startIndexOfReferencedField = Optional.ofNullable(indexes.get(referencedField))
+                        .orElseThrow(() -> new IllegalArgumentException("Referenced field is not available"));
+                val length = tableData.readData(startIndexOfReferencedField, referencedField.getNrOfBytes());
 
-                        val referencedField = dynamicLengthField.getFieldContainingLength();
-                        val startIndexOfReferencedField = Optional.ofNullable(indexes.get(referencedField))
-                                .orElseThrow(() -> new IllegalArgumentException("Referenced field is not available"));
-                        val length = tableData.readData(startIndexOfReferencedField, referencedField.getNrOfBytes());
-
-                        indexes.put(field, index.get());
-                        index.addAndGet(length);
-                    });
-
-            // normal case: The length of the fields is available
-            CastHelper.tryCast(StaticField.class, field)
-                    .ifPresent(staticField -> {
-                        indexes.put(field, index.getAndAdd(staticField.getNrOfBytes()));
-                    });
+                indexes.put(field, index.get());
+                index.addAndGet(length);
+            } else if (field instanceof StaticField staticField) {
+                // normal case: The length of the fields is available
+                indexes.put(field, index.getAndAdd(staticField.getNrOfBytes()));
+            } else {
+                throw new UnsupportedOperationException(String.format("Field of type %s is not supported", field.getClass()));
+            }
         }
 
         return indexes;
