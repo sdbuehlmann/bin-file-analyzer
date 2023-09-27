@@ -27,13 +27,36 @@ public class ReadableTable {
         startIndexesByFields = findStartIndexesOfFields();
     }
 
-    public Optional<Integer> tryGetValueOfField(final Field field) {
+    public int getValueOfField(final StaticField field) {
+        return tryGetValueOfField(field)
+                .orElseThrow(() -> new IllegalStateException(String.format("No value for field \"%s\" found", field.getDescription())));
+    }
+
+    public Optional<Integer> tryGetValueOfField(final StaticField field) {
         return tryFindStartIndexOfField(field)
-                .map(fieldInformation -> tableData.readData(fieldInformation.getStartIndex(), fieldInformation.getNrOfBytes()));
+                .map(fieldInformation -> tableData.readLittleEndian(fieldInformation.getStartIndex(), fieldInformation.getNrOfBytes()));
+    }
+
+    public byte[] getValueOfField(final DynamicLengthField field) {
+        return tryGetValueOfField(field)
+                .orElseThrow(() -> new IllegalStateException(String.format("No value for field \"%s\" found", field.getDescription())));
+    }
+
+    public Optional<byte[]> tryGetValueOfField(final DynamicLengthField field) {
+        return tryFindStartIndexOfField(field)
+                .map(fieldInformation -> tableData.getData(fieldInformation.getStartIndex(), fieldInformation.getNrOfBytes()));
     }
 
     public Optional<FieldInformation> tryFindStartIndexOfField(final Field field) {
         return Optional.ofNullable(startIndexesByFields.get(field));
+    }
+
+    public int getSize() {
+        val lastField = tableSchema.getFields().get(tableSchema.getFields().size() - 1);
+        val lastFieldInfo = tryFindStartIndexOfField(lastField)
+                .orElseThrow(() -> new IllegalStateException(String.format("No value for field \"%s\" found", lastField.getDescription())));
+
+        return lastFieldInfo.getStartIndex() + lastFieldInfo.getNrOfBytes();
     }
 
     private Map<Field, FieldInformation> findStartIndexesOfFields() {
@@ -48,7 +71,7 @@ public class ReadableTable {
                 val startIndexOfReferencedField = Optional.ofNullable(startIndexesByFields.get(referencedField))
                         .orElseThrow(() -> new IllegalArgumentException("Referenced field is not available"));
 
-                val valueReferencedField = tableData.readData(
+                val valueReferencedField = tableData.readLittleEndian(
                         startIndexOfReferencedField.getStartIndex(),
                         referencedField.getNrOfBytes());
 

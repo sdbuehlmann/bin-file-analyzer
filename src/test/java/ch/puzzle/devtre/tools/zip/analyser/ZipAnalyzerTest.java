@@ -14,8 +14,8 @@ public class ZipAnalyzerTest {
     @SneakyThrows
     public void test() {
         // given
-        //val siardArchive = TestResourcesResolver.loadResource("siard-projects/corrupt/simple-teams-example_postgres13_2-2.siard");
-        val siardArchive = TestResourcesResolver.loadResource("siard-projects/2_2/simple-teams-example_postgres13_2-2.siard");
+        val siardArchive = TestResourcesResolver.loadResource("siard-projects/corrupt/simple-teams-example_postgres13_2-2.siard");
+        //val siardArchive = TestResourcesResolver.loadResource("siard-projects/2_2/simple-teams-example_postgres13_2-2.siard");
 
         // when
         zipAnalyzer.analyze(siardArchive);

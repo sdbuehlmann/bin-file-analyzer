@@ -16,8 +16,18 @@ public class ReadableTableTest {
 
     private static final int FIELD_1_VALUE = 0x06054b50;
     private static final int FIELD_2_VALUE = 0xABCDEF;
-    private static final int FIELD_3_VALUE = 4;
-    private static final int FIELD_4_VALUE = 0x11072409;
+    private static final byte[] FIELD_4_VALUE = {
+            (byte)0x11,
+            (byte)0x07,
+            (byte)0x24,
+            (byte)0x09,
+            (byte)0xA3,
+            (byte)0x14,
+            (byte)0xCA,
+            (byte)0x12,
+            (byte)0x05
+    };
+    private static final int FIELD_3_VALUE = FIELD_4_VALUE.length;
     private static final int FIELD_5_VALUE = 0x0123;
 
     public static final StaticValueField FIELD_1 = new StaticValueField(4, "Field 1", FIELD_1_VALUE);
@@ -46,7 +56,7 @@ public class ReadableTableTest {
     @Test
     public void tryFindStartIndexOfField_forField1() {
         // given
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
         readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
         // when
@@ -63,7 +73,7 @@ public class ReadableTableTest {
     @Test
     public void tryFindStartIndexOfField_forField3() {
         // given
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
         readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
         // when
@@ -81,7 +91,7 @@ public class ReadableTableTest {
     @Test
     public void tryFindStartIndexOfField_forField4() {
         // given
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
         readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
         // when
@@ -102,7 +112,7 @@ public class ReadableTableTest {
     @Test
     public void tryFindStartIndexOfField_forField5() {
         // given
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
         readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
         // when
@@ -124,8 +134,8 @@ public class ReadableTableTest {
     @Test
     public void tryGetValueOfField_forField1() {
         // given
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
-        Mockito.when(tableDataMock.readData(Mockito.eq(0), Mockito.eq(FIELD_1.getNrOfBytes()))).thenReturn(FIELD_1_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(0), Mockito.eq(FIELD_1.getNrOfBytes()))).thenReturn(FIELD_1_VALUE); // just value of field 3 is needed to determine all indexes
         readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
         // when
@@ -138,8 +148,8 @@ public class ReadableTableTest {
     @Test
     public void tryGetValueOfField_forField4() {
         // given
-        Mockito.when(tableDataMock.readData(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
-        Mockito.when(tableDataMock.readData(Mockito.eq(9), Mockito.eq(FIELD_3_VALUE))).thenReturn(FIELD_4_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.readLittleEndian(Mockito.eq(7), Mockito.eq(FIELD_3.getNrOfBytes()))).thenReturn(FIELD_3_VALUE); // just value of field 3 is needed to determine all indexes
+        Mockito.when(tableDataMock.getData(Mockito.eq(9), Mockito.eq(FIELD_3_VALUE))).thenReturn(FIELD_4_VALUE); // just value of field 3 is needed to determine all indexes
         readableTable = new ReadableTable(tableSchemaMock, tableDataMock);
 
         // when

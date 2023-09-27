@@ -4,7 +4,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class StaticLengthField implements Field, StaticField {
+public class StaticLengthField implements StaticField {
 
     @NonNull int nrOfBytes;
     @NonNull String description;

@@ -7,84 +7,60 @@ import org.junit.jupiter.api.Test;
 
 public class TableDataTest {
 
-    private static final byte[] BYTES_ALL_FF = {
-            (byte)0xFF,
-            (byte)0xFF,
-            (byte)0xFF,
-            (byte)0xFF
+    private static final int SIGNATURE = 0xAB110137;
+
+    private static final byte[] DATA = {
+            (byte)0xFF, // 0
+            (byte)0xFF, // 1
+            (byte)0xFF, // 2
+            (byte)0xFF, // 3
+            (byte)0x2A, // 4
+            (byte)0x38, // 5
+
+            //---------------- // signature stored in little-endian
+            (byte)0x37, // 6
+            (byte)0x01, // 7
+            (byte)0x11, // 8
+            (byte)0xAB, // 9
+            //----------------
+
+            (byte)0xF7, // 10
+
+            //----------------  // signature stored in little-endian
+            (byte)0x37, // 11
+            (byte)0x01, // 12
+            (byte)0x11, // 13
+            (byte)0xAB, // 14
+            //----------------
+
+            (byte)42,   // 15
+            (byte)0,    // 16
+            (byte)0,    // 17
+            (byte)0,    // 18
+            (byte)0     // 19
     };
 
-    private static final byte[] BYTES_ALL_ZERO = {
-            (byte)0,
-            (byte)0,
-            (byte)0,
-            (byte)0
-    };
-
-    private static final byte[] BYTES_DIFFERENT_VALUES = {
-            (byte)0x2A,
-            (byte)0x38,
-            (byte)0x01,
-            (byte)0xF7
-    };
-
     @Test
-    public void readData_withFourBytesWith255Value_expectMergedValue() {
+    public void tryFindLastSignatureStartIndex() {
         // given
-        val tableData = new TableData(BYTES_ALL_FF);
+        val tableData = new TableData(DATA);
 
         // when
-        val value = tableData.readData(0, 4);
+        val value = tableData.tryFindLastSignatureStartIndex(SIGNATURE);
 
         //then
-        Assertions.assertThat(value).isEqualTo(0xFFFFFFFF);
+        Assertions.assertThat(value).contains(11);
     }
 
     @Test
-    public void readData_withFourBytesWith0Value_expectMergedValue() {
+    public void readLittleEndian() {
         // given
-        val tableData = new TableData(BYTES_ALL_ZERO);
+        val tableData = new TableData(DATA);
 
         // when
-        val value = tableData.readData(0, 4);
+        val value = tableData.readLittleEndian(11, 4);
 
         //then
-        Assertions.assertThat(value).isEqualTo(0);
-    }
-
-    @Test
-    public void readData_withOneBytesWithDifferentValues_expectMergedValue() {
-        // given
-        val tableData = new TableData(BYTES_DIFFERENT_VALUES);
-
-        // when
-        val value = tableData.readData(1, 1);
-
-        //then
-        Assertions.assertThat(value).isEqualTo(0x38);
-    }
-
-    @Test
-    public void readData_withTwoBytesWithDifferentValues_expectMergedValue() {
-        // given
-        val tableData = new TableData(BYTES_DIFFERENT_VALUES);
-
-        // when
-        val value = tableData.readData(1, 2);
-
-        //then
-        Assertions.assertThat(value).isEqualTo(0x3801);
-    }
-
-    @Test
-    public void readData_withThreeBytesWithDifferentValues_expectMergedValue() {
-        // given
-        val tableData = new TableData(BYTES_DIFFERENT_VALUES);
-
-        // when
-        val value = tableData.readData(1, 3);
-
-        //then
-        Assertions.assertThat(value).isEqualTo(0x3801F7);
+        Assertions.assertThat(value).isEqualTo(SIGNATURE);
     }
 }
