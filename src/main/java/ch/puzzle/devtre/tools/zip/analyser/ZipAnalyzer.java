@@ -1,7 +1,7 @@
 package ch.puzzle.devtre.tools.zip.analyser;
 
-import ch.puzzle.devtre.tools.zip.analyser.ZipTables.CentralDirectoryFileHeader;
 import ch.puzzle.devtre.tools.zip.analyser.ZipTables.EndOfCentralDirectory;
+import ch.puzzle.devtre.tools.zip.analyser.tables.CentralDirectoryFileHeader;
 import lombok.SneakyThrows;
 import lombok.val;
 
@@ -39,6 +39,14 @@ public class ZipAnalyzer {
         val readableTable = new ReadableTable(EndOfCentralDirectory.EOCD, eocdData);
         val eocd = EndOfCentralDirectory.read(readableTable);
         val fileHeaders = interpretCentralDir(raf, eocd);
+
+        val interpreted = fileHeaders.stream()
+                .map(CentralDirectoryFileHeader::interpret)
+                .collect(Collectors.toList());
+
+        val invalidCompressed = interpreted.stream()
+                .filter(interpreted1 -> interpreted1.getFileName().equals("content/schema0/table5/lob3/record39.txt"))
+                .findAny();
 
         System.out.println(eocd);
     }
